@@ -5,7 +5,7 @@ MAINTAINER Burak Ince <burak.ince@linux.org.tr>
 RUN apk update \
   && apk add --no-cache git make gcc g++ python \
   && npm config set loglevel error \
-  && npm install dredd@4.9.3 \
+  && npm install dredd@5.0.0 \
   && apk del git make gcc g++ python \
   && rm -rf /var/cache/apk/*
 
