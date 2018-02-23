@@ -1,11 +1,11 @@
-FROM node:9.5.0-alpine
+FROM node:9.6.1-alpine
 
 MAINTAINER Burak Ince <burak.ince@linux.org.tr>
 
 RUN apk update \
   && apk add --no-cache git make gcc g++ python \
   && npm config set loglevel error \
-  && npm install dredd@5.1.0 \
+  && npm install dredd@5.1.3 \
   && apk del git make gcc g++ python \
   && rm -rf /var/cache/apk/*
 
