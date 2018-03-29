@@ -1,4 +1,4 @@
-FROM node:9.9.0-alpine
+FROM node:9.10.0-alpine
 
 MAINTAINER Burak Ince <burak.ince@linux.org.tr>
 
