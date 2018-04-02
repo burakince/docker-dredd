@@ -1,6 +1,6 @@
 FROM node:9.10.0-alpine
 
-MAINTAINER Burak Ince <burak.ince@linux.org.tr>
+LABEL maintainer="Burak Ince <burak.ince@linux.org.tr>"
 
 RUN apk update \
   && apk add --no-cache git make gcc g++ python \
