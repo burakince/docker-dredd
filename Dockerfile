@@ -1,4 +1,4 @@
-FROM node:9.10.0-alpine
+FROM node:9.10.1-alpine
 
 LABEL maintainer="Burak Ince <burak.ince@linux.org.tr>"
 
