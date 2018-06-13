@@ -5,7 +5,7 @@ LABEL maintainer="Burak Ince <burak.ince@linux.org.tr>"
 RUN apk update \
   && apk add --no-cache git make gcc g++ python \
   && npm config set loglevel error \
-  && npm install dredd@5.1.9 \
+  && npm install dredd@5.1.10 \
   && apk del git make gcc g++ python \
   && rm -rf /var/cache/apk/*
 
