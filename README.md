@@ -5,7 +5,7 @@
 Latest Dredd: [![npm version](https://badge.fury.io/js/dredd.svg)](https://www.npmjs.com/package/dredd)
 Latest Node: [![node tag](https://img.shields.io/github/tag/nodejs/node.svg)](https://github.com/nodejs/node)
 
-This image using Dredd 5.1.10 with Alpine Node 9.11.1
+This image using Dredd 5.1.10 with Alpine Node 9.11.2
 
 # Usage
 
