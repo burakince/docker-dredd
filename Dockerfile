@@ -7,7 +7,7 @@ LABEL maintainer="Burak Ince <burak.ince@linux.org.tr>"
 WORKDIR /usr/app
 
 ARG DREDD_VERSION=14.1.0
-ARG NPM_VERSION=8.11.0
+ARG NPM_VERSION=8.12.0
 
 RUN npm config set loglevel error
 RUN npm install -g npm@$NPM_VERSION
