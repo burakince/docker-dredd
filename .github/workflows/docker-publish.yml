@@ -14,8 +14,8 @@ on:
 
 env:
   # Use docker.io for Docker Hub if empty
-#   REGISTRY: ghcr.io
-  REGISTRY: docker.io
+  # REGISTRY: ghcr.io
+  # REGISTRY: docker.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
 
@@ -35,25 +35,61 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install ORAS
+        id: install_oras
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          orasVersion=$( curl --silent https://api.github.com/repos/oras-project/oras/releases/latest | jq -r '.tag_name' | sed 's/v//' )
+          curl -LO https://github.com/oras-project/oras/releases/download/v${orasVersion}/oras_${orasVersion}_linux_amd64.tar.gz
+          tar -zxvf oras_${orasVersion}_linux_amd64.tar.gz
+          rm -f oras_${orasVersion}_linux_amd64.tar.gz
+
+      - name: Install Cosign
+        id: install_cosign
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: sigstore/cosign-installer@main
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@master
         with:
           platforms: all
 
-      # Workaround: https://github.com/docker/build-push-action/issues/461
-      - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v2
-
-      # Login against a Docker registry except on PR
+      # Login against a Docker Hub registry except on PR
       # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
+      - name: Login to Docker Hub
+        id: docker_hub_login
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: docker.io
           username: ${{ github.actor }}
-#           password: ${{ secrets.GITHUB_TOKEN }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Login to GitHub Container Registry
+        id: ghcr_login
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry (ORAS)
+        id: oras_ghcr_login
+        if: github.event_name != 'pull_request'
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | oras login ghcr.io --username ${{ github.actor }} --password-stdin
+
+      - name: Publish Artifact Hub Manifest
+        id: publish_ah_manifest
+        if: github.event_name != 'pull_request'
+        run: |
+          oras push \
+            ghcr.io/${{ env.IMAGE_NAME }}:artifacthub.io \
+            --manifest-config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+            artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -61,12 +97,21 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: |
+            docker.io/${{ env.IMAGE_NAME }}
+            ghcr.io/${{ env.IMAGE_NAME }}
           flavor: |
             latest=true
           tags: |
             type=sha
             type=ref,event=tag
+          labels: |
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ env.IMAGE_NAME }}/main/README.md
+            io.artifacthub.package.maintainers=[{"name":"burakince","email":"burak.ince@linux.org.tr"}]
+            io.artifacthub.package.logo-url=https://raw.githubusercontent.com/apiaryio/dredd/master/docs/_static/images/dredd-logo.png
+            io.artifacthub.package.keywords=testing,api,http,unit-testing,validation,integration-testing,swagger,test-runner,openapi,tests,test-framework,api-blueprint,cli-app,dredd,openapi-validation,testing-framework,openapi3,sjs-team,openapi2
+            io.artifacthub.package.license=MIT
+            io.artifacthub.package.alternative-locations=docker.io/${{ env.IMAGE_NAME }}
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -79,3 +124,18 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      # Sign the resulting Docker image digest except on PRs.
+      # This will only write to the public Rekor transparency log when the Docker
+      # repository is public to avoid leaking data.  If you would like to publish
+      # transparency data even for private images, pass --force to cosign below.
+      # https://github.com/sigstore/cosign
+      - name: Sign the published Docker image
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        # This step uses the identity token to provision an ephemeral certificate
+        # against the sigstore community Fulcio instance.
+        run: |
+          cosign sign docker.io/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}
+          cosign sign ghcr.io/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}
