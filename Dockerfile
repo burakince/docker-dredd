@@ -1,4 +1,4 @@
-ARG NODE_VERSION=16.17.0
+ARG NODE_VERSION=16.19.0
 
 FROM node:${NODE_VERSION} as foundation
 
@@ -7,7 +7,7 @@ LABEL maintainer="Burak Ince <burak.ince@linux.org.tr>"
 WORKDIR /usr/app
 
 ARG DREDD_VERSION=14.1.0
-ARG NPM_VERSION=8.19.1
+ARG NPM_VERSION=
 
 RUN npm config set loglevel error
 RUN npm install -g npm@$NPM_VERSION
