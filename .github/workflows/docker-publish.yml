@@ -39,7 +39,7 @@ jobs:
         id: install_oras
         if: ${{ github.event_name != 'pull_request' }}
         run: |
-          orasVersion=$( curl --silent https://api.github.com/repos/oras-project/oras/releases/latest | jq -r '.tag_name' | sed 's/v//' )
+          orasVersion=0.15.1
           curl -LO https://github.com/oras-project/oras/releases/download/v${orasVersion}/oras_${orasVersion}_linux_amd64.tar.gz
           tar -zxvf oras_${orasVersion}_linux_amd64.tar.gz
           rm -f oras_${orasVersion}_linux_amd64.tar.gz
