@@ -37,17 +37,11 @@ jobs:
 
       - name: Install ORAS
         id: install_oras
-        if: ${{ github.event_name != 'pull_request' }}
-        run: |
-          orasVersion=$( curl --silent https://api.github.com/repos/oras-project/oras/releases/latest | jq -r '.tag_name' | sed 's/v//' )
-          curl -LO https://github.com/oras-project/oras/releases/download/v${orasVersion}/oras_${orasVersion}_linux_amd64.tar.gz
-          tar -zxvf oras_${orasVersion}_linux_amd64.tar.gz
-          rm -f oras_${orasVersion}_linux_amd64.tar.gz
+        uses: oras-project/setup-oras@main
 
       - name: Install Cosign
         id: install_cosign
-        if: ${{ github.event_name != 'pull_request' }}
-        uses: sigstore/cosign-installer@main
+        uses: sigstore/cosign-installer@v2.8.1
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@master
