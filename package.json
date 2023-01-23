@@ -1,0 +1,19 @@
+{
+  "name": "docker-dredd",
+  "version": "1.0.0",
+  "description": "Docker image for Dredd npm package",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/burakince/docker-dredd.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/burakince/docker-dredd/issues"
+  },
+  "homepage": "https://github.com/burakince/docker-dredd#readme",
+  "dependencies": {
+    "dredd": "^14.1.0"
+  }
+}

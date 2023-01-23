@@ -1,19 +1,15 @@
-ARG NODE_VERSION=16.19.0
-
-FROM node:${NODE_VERSION} as foundation
+FROM node:16.19.0 as foundation
 
 LABEL maintainer="Burak Ince <burak.ince@linux.org.tr>"
 
 WORKDIR /usr/app
 
-ARG DREDD_VERSION=14.1.0
-ARG NPM_VERSION=9.3.0
+COPY package.json package-lock.json /usr/app/
 
 RUN npm config set loglevel error
-RUN npm install -g npm@$NPM_VERSION
-RUN npm install dredd@$DREDD_VERSION
+RUN npm install
 
-FROM node:${NODE_VERSION}-slim
+FROM node:16.19.0-slim
 
 WORKDIR /usr/app
 
