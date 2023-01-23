@@ -8,6 +8,8 @@ on:
     paths:
       - '.github/workflows/docker-publish.yml'
       - 'Dockerfile'
+      - 'package.json'
+      - 'package-lock.json'
 
   pull_request:
     branches: [ main ]
