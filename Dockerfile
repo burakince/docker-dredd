@@ -1,4 +1,4 @@
-FROM node:16.19.1 as foundation
+FROM node:16.20.0 as foundation
 
 LABEL maintainer="Burak Ince <burak.ince@linux.org.tr>"
 
@@ -9,7 +9,7 @@ COPY package.json package-lock.json /usr/app/
 RUN npm config set loglevel error
 RUN npm install
 
-FROM node:16.19.1-slim
+FROM node:16.20.0-slim
 
 WORKDIR /usr/app
 
