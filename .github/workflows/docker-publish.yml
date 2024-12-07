@@ -37,6 +37,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
       - name: Install ORAS
         id: install_oras
         uses: oras-project/setup-oras@main
