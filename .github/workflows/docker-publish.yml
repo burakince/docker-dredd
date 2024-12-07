@@ -43,6 +43,14 @@ jobs:
         with:
           node-version-file: '.nvmrc'
 
+      # Step to remove the leading 'v' from the Node.js version
+      - name: Trim 'v' from Node.js version
+        id: trim_node_version
+        run: |
+          raw_version=${{ steps.install_node.outputs.node-version }}
+          trimmed_version=${raw_version#v}
+          echo "trimmed_version=$trimmed_version" >> "$GITHUB_OUTPUT"
+
       - name: Install ORAS
         id: install_oras
         uses: oras-project/setup-oras@main
@@ -131,7 +139,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NODE_VERSION=${{ steps.install_node.outputs.node-version }}
+            NODE_VERSION=${{ steps.trim_node_version.outputs.trimmed_version }}
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
